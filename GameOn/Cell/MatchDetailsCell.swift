@@ -9,6 +9,9 @@ import UIKit
 
 class MatchDetailsCell: UITableViewCell {
     
+    
+    @IBOutlet weak var backView: UIView!
+    
     @IBOutlet weak var WinnerPoints: UILabel!
     @IBOutlet weak var losersPoints: UILabel!
     @IBOutlet weak var teamA: UILabel!
