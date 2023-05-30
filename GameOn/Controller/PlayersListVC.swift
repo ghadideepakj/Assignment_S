@@ -19,24 +19,33 @@ class PlayersListVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
     
     var firstInning : Inning?
     var secondInning : Inning?
-    var selectedString = ""
     var showFilter = false
-//    var totalPlayers = [ : ]
+    var totalPlayers : [InningBatsman]?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        
         playersList.delegate = self
         playersList.dataSource = self
+        
+        inningStackView.layer.borderWidth = 1.0
+        inningStackView.layer.borderColor = UIColor.black.cgColor
         
         firstInning = playersData?.innings?.first
         secondInning = playersData?.innings?.last
         
         inningStackView.isHidden = true
         
+        firstLoadData()
+    }
+    
+    func firstLoadData() {
+        let firstInningBats = firstInning?.batsmen
+        let firstInningBowls = firstInning?.bowlers
+        totalPlayers = firstInningBats
+        playersList.reloadData()
+        inningStackView.isHidden = true
     }
     
     @IBAction func filterButtonTapped(_ sender: UIButton) {
@@ -52,33 +61,69 @@ class PlayersListVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
     
     
     @IBAction func firstInningSelected(_ sender: UIButton) {
-        selectedString = "firstInning"
-        var firstInningBats = firstInning?.batsmen
-        var firstInningBowls = firstInning?.bowlers
+        
+        let firstInningBats = firstInning?.batsmen
+        let firstInningBowls = firstInning?.bowlers
+        totalPlayers = firstInningBats
+        playersList.reloadData()
+        inningStackView.isHidden = true
 //        if firstInningBats != nil, firstInningBowls != nil{
-//            totalPlayers = firstInningBats? + firstInningBowls?
+//            totalPlayers.append(contentsOf: firstInningBats!)
+//            totalPlayers.append(contentsOf: firstInningBowls!)
 //        }
-//        totalPlayers = firstInningBats?.append(contentsOf: firstInningBowls)
-        
-        
     }
     
     @IBAction func secondInningSelected(_ sender: UIButton) {
-        selectedString = "SecondInning"
+        let secondInningBats = secondInning?.batsmen
+        let secondInningBowls = secondInning?.bowlers
+        totalPlayers = secondInningBats
+        playersList.reloadData()
+        inningStackView.isHidden = true
+//        if secondInningBats != nil, secondInningBowls != nil{
+//            totalPlayers.append(contentsOf: secondInningBats!)
+//            totalPlayers.append(contentsOf: secondInningBats!)
+//        }
         
     }
     
-    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "ok", style: .default, handler: nil))
+        self.present(alert, animated: true)
+    }
     
     //MARK:- Table view methods
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return totalPlayers?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "playersListCell", for: indexPath) as! playersListCell
-        
+//        var data : InningBatsman?
+//        data = totalPlayers?[indexPath.row]
+        cell.mainLabel.text = totalPlayers?[indexPath.row].batsman
         return cell
+    }
+    
+//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return UITableView.automaticDimension
+//    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var data = totalPlayers![indexPath.row]
+        var message = "Runs: " + (data.runs ?? "") + "\n" + "Fours: " +  (data.fours ?? "") + "\n" + "Sixes: " + (data.sixes ?? "") +  "\n" + "Balls: " + (data.balls ?? "")
+        //String(format: "Runs: " , (data.runs ?? "") , "\n" , "Fours: ", (data.fours ?? ""), "\n" , "Sixes: " , (data.sixes ?? ""), "\n", "Balls: ", (data.balls ?? ""))
+        tableView.deselectRow(at: indexPath, animated: true)
+        showAlert(title: "\(data.batsman ?? "")", message: message)
+        
     }
     
 }
